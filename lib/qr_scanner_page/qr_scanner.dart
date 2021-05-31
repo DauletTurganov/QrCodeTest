@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:test_zadani/bloc/qr_code_scanner_bloc.dart';
-import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:test_zadani/constants.dart';
+
 
 class QrViewPage extends StatefulWidget {
   static String id = 'qr_scanner_page';
   @override
   _QrViewPageState createState() => _QrViewPageState();
 }
-
 
 
 class _QrViewPageState extends State<QrViewPage> {
@@ -31,8 +29,6 @@ class _QrViewPageState extends State<QrViewPage> {
      }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +70,6 @@ class _QrViewPageState extends State<QrViewPage> {
                           height: 25,
                         ),
                         Text('Подтвердите ваши действия'),
-
                       ],
                     ),
                   ),
@@ -175,7 +170,6 @@ class _QrViewPageState extends State<QrViewPage> {
                     ),
                   ),
                 ),
-
           ],
         ),
       ),

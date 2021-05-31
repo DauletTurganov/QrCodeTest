@@ -59,7 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(
               height: 30,
             ),
-            // Image(image: AssetImage('lib/images/image1.png'),),
             Container(
               decoration: BoxDecoration(
                 border: Border.all(width: 2, color: Colors.purple

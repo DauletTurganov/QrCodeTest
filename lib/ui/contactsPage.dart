@@ -44,7 +44,8 @@ class _MyContactsState extends State<MyContacts> {
                             style: kTextStyle.copyWith(
                                 color: Colors.black
                             ),),
-                        Text('${state.contacts![item].phones.first.number}',
+                        (state.contacts![item].phones.isEmpty) ?
+                            Text('') : Text('${state.contacts![item].phones.first.number}',
                           style: kTextStyle.copyWith(
                               color: Colors.black
                           ),),
@@ -65,7 +66,7 @@ class _MyContactsState extends State<MyContacts> {
             ),
               ElevatedButton(onPressed: () {
                 BlocProvider.of<QrCodeScannerBloc>(context).add(QrPermissionRequest());
-              }, child: Text('Req permisiion'))],
+              }, child: Text('Запрос на доступ к контактам'))],
             );
 
           }

@@ -4,28 +4,7 @@ abstract class QrCodeScannerEvent extends Equatable {
   const QrCodeScannerEvent();
 }
 
-class ScanButtonClicked extends QrCodeScannerEvent {
-  @override
-  // TODO: implement props
-  List<Object?> get props => [];
-}
-
-class OpenCamera extends QrCodeScannerEvent {
-  @override
-  // TODO: implement props
-  List<Object?> get props => [];
-}
-
 class QrPermissionRequest extends QrCodeScannerEvent {
-  @override
-  // TODO: implement props
-  List<Object?> get props => [];
-
-}
-
-class QrAddToContacts extends QrCodeScannerEvent {
-  QrAddToContacts({this.data});
-  String? data;
   @override
   // TODO: implement props
   List<Object?> get props => [];

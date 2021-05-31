@@ -2,10 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-// import 'package:contacts_service/contacts_service.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as FlutterContact;
 
 
@@ -21,11 +17,6 @@ class QrCodeScannerBloc extends Bloc<QrCodeScannerEvent, QrCodeScannerState> {
   ) async* {
     if (event is QrPermissionRequest) {
       // print('start request from bloc');
-
-      // final PermissionStatus permissionStatus = await _getPermission();
-      // print(permissionStatus);
-      // if (permissionStatus == PermissionStatus.granted) {
-      //   print(permissionStatus);
       final permission = await FlutterContact.FlutterContacts.requestPermission();
       if (permission == true) {
         final List<FlutterContact.Contact> _contacts = await FlutterContact.FlutterContacts.getContacts(
@@ -37,10 +28,22 @@ class QrCodeScannerBloc extends Bloc<QrCodeScannerEvent, QrCodeScannerState> {
         yield QrPermissionDennied("Отказано в доступе, пожалуйста откройте доступ к своим контактам");
       }
     } if (event is FetchQrCodeContact) {
-      // ContactsService.addContact(event.dataFromQr);
-      FlutterContact.Contact cont = FlutterContact.Contact.fromVCard(event.dataFromQr);
-      FlutterContact.FlutterContacts.insertContact(cont);
       final List<FlutterContact.Contact> _contacts = await FlutterContact.FlutterContacts.getContacts();
+      // print(_contacts);
+      FlutterContact.Contact cont = FlutterContact.Contact.fromVCard(event.dataFromQr);
+      if (_contacts.contains(cont)) {
+        yield QrPermissionGranted().copyWith(
+            contacts: _contacts
+        );
+      } else {
+        FlutterContact.FlutterContacts.insertContact(cont);
+        final List<FlutterContact.Contact> _contacts = await FlutterContact.FlutterContacts.getContacts();
+        yield QrPermissionGranted().copyWith(
+            contacts: _contacts
+        );
+      }
+      FlutterContact.FlutterContacts.insertContact(cont);
+
       yield QrPermissionGranted().copyWith(
         contacts: _contacts
       );
