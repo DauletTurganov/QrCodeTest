@@ -17,7 +17,7 @@ class QrCodeScannerBloc extends Bloc<QrCodeScannerEvent, QrCodeScannerState> {
     QrCodeScannerEvent event,
   ) async* {
     if (event is QrPermissionRequest) {
-      // print('start request from bloc');
+      print('start request from bloc');
       final permission = await FlutterContact.FlutterContacts.requestPermission();
       if (permission == true) {
         final List<FlutterContact.Contact> _contacts = await FlutterContact.FlutterContacts.getContacts(
@@ -28,7 +28,9 @@ class QrCodeScannerBloc extends Bloc<QrCodeScannerEvent, QrCodeScannerState> {
         yield QrPermissionDennied("Отказано в доступе, пожалуйста откройте доступ к своим контактам");
       }
     } if (event is FetchQrCodeContact) {
+      print('fetched contact');
         if (await Permission.contacts.isGranted) {
+          print('permisiion granted');
           final List<FlutterContact.Contact> _contacts = await FlutterContact.FlutterContacts.getContacts(
               withProperties: true
           );
@@ -52,7 +54,7 @@ class QrCodeScannerBloc extends Bloc<QrCodeScannerEvent, QrCodeScannerState> {
           yield QrPermissionGranted().copyWith(
               contacts: _contacts
           );
-        } else {
+        } else if (await Permission.contacts.isPermanentlyDenied) {
           openAppSettings();
         }
     }

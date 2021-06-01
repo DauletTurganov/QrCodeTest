@@ -34,11 +34,11 @@ class _QrViewPageState extends State<QrViewPage> {
 
    reqPermission() async{
     var camera = await Permission.camera.request();
-    if (await camera.isGranted) {
+    if ( camera.isGranted) {
       return camera.isGranted;
-    } else if (await camera.isDenied) {
+    } else if ( camera.isDenied) {
       return camera.isDenied;
-    } else if (await camera.isPermanentlyDenied) {
+    } else if ( camera.isPermanentlyDenied) {
       openAppSettings();
     }
   }
