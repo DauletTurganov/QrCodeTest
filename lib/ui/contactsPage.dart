@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:permission_handler/permission_handler.dart';
 import 'package:test_zadani/bloc/qr_code_scanner_bloc.dart';
 import 'package:test_zadani/constants.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 
 class MyContacts extends StatefulWidget {
@@ -40,12 +42,17 @@ class _MyContactsState extends State<MyContacts> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                          Text('${state.contacts![item].displayName}',
-                            style: kTextStyle.copyWith(
-                                color: Colors.black
-                            ),),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${state.contacts![item].displayName}',
+                                style: kTextStyle.copyWith(
+                                    color: Colors.black
+                                ),),
+                            ],
+                          ),
                         (state.contacts![item].phones.isEmpty) ?
-                            Text('') : Text('${state.contacts![item].phones.first.number}',
+                            Text('') : Text('${state.contacts![item].phones.last.number}',
                           style: kTextStyle.copyWith(
                               color: Colors.black
                           ),),
@@ -61,11 +68,14 @@ class _MyContactsState extends State<MyContacts> {
 
           } else if (state is QrPermissionDennied) {
             return Column(
-              children: [ Text(
+              children: [ Padding(
+                padding: EdgeInsets.all(15.0),
+                child: Text(
             '${state.error}'
             ),
+              ),
               ElevatedButton(onPressed: () {
-                BlocProvider.of<QrCodeScannerBloc>(context).add(QrPermissionRequest());
+                openAppSettings();
               }, child: Text('Запрос на доступ к контактам'))],
             );
 

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:test_zadani/bloc/qr_code_scanner_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class QrViewPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _QrViewPageState extends State<QrViewPage> {
   QRViewController? _controller;
   bool _cameraToggle = true;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  var _camera;
 
   _launchURL() async{
     if (_result != null) {
@@ -30,8 +32,22 @@ class _QrViewPageState extends State<QrViewPage> {
     }
   }
 
+   reqPermission() async{
+    var camera = await Permission.camera.request();
+    if (await camera.isGranted) {
+      return camera.isGranted;
+    } else if (await camera.isDenied) {
+      return camera.isDenied;
+    } else if (await camera.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
     var sizes = MediaQuery.of(context).size.height;
     var widths = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -41,6 +57,7 @@ class _QrViewPageState extends State<QrViewPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+
             _result != null ?
             Expanded(
               flex: 4,
@@ -48,30 +65,7 @@ class _QrViewPageState extends State<QrViewPage> {
                 child: AlertDialog(
                   title: const Text('Внимание'),
                   content: SingleChildScrollView(
-                    child: ListBody(
-                      children:  <Widget>[
-                        Text('Сканирование завершено'),
-                         SizedBox(
-                           height: 15,
-                         ),
-                         (_result!.code.contains('BEGIN:VCARD')) ?
-                        Text('Данные с QR-кода получены: Контакт',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.lightBlueAccent
-                        ),) : Text('Данные с QR-кода: ${_result!.code}',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black
-                  ),),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        Text('Подтвердите ваши действия'),
-                      ],
-                    ),
+                    child: AlertDialogWidget(result: _result),
                   ),
                   actions: [
                     TextButton(onPressed: () {
@@ -88,6 +82,8 @@ class _QrViewPageState extends State<QrViewPage> {
                         'Добавить в контакты'
                       ),
                     ) : Text(''),
+
+                    //Start of if
                     (_result!.code.contains('https') || _result!.code.contains('http')) ?
                     TextButton(onPressed: () {
                       _launchURL();
@@ -107,7 +103,7 @@ class _QrViewPageState extends State<QrViewPage> {
                     ),
                     child: Column(
                       children: [
-                        Expanded(flex: 4, child: _buildQrView(context)),
+                        Expanded(flex: 5, child: _buildQrView(context)),
                         Expanded(flex: 1,
                           child: FittedBox(
                             fit: BoxFit.contain,
@@ -130,20 +126,6 @@ class _QrViewPageState extends State<QrViewPage> {
                                       margin: EdgeInsets.all(8),
                                       child: ElevatedButton(
                                           onPressed: () async {
-                                            await _controller?.toggleFlash();
-                                            setState(() {});
-                                          },
-                                          child: FutureBuilder(
-                                            future: _controller?.getFlashStatus(),
-                                            builder: (context, snapshot) {
-                                              return Icon(Icons.wb_sunny_outlined);
-                                            },
-                                          )),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.all(8),
-                                      child: ElevatedButton(
-                                          onPressed: () async {
                                             await _controller?.flipCamera();
                                             setState(() {});
                                           },
@@ -159,7 +141,33 @@ class _QrViewPageState extends State<QrViewPage> {
                                               }
                                             },
                                           )),
-                                    )
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(8),
+                                      child: ElevatedButton(
+                                          onPressed: () async {
+                                            await _controller?.toggleFlash();
+                                            reqPermission();
+                                            setState(() {});
+                                          },
+                                          child: FutureBuilder(
+                                            future: _controller?.getFlashStatus(),
+                                            builder: (context, snapshot) {
+                                              return Icon(Icons.wb_sunny_outlined);
+                                            },
+                                          )),
+
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.all(8),
+                                      child: ElevatedButton(
+                                          onPressed: () async {
+                                            openAppSettings();
+                                            setState(() {});
+                                          },
+                                          child: Icon(Icons.settings)
+
+                                          )),
                                   ],
                                 ),
                               ],
@@ -197,11 +205,12 @@ class _QrViewPageState extends State<QrViewPage> {
      var scanArea = (MediaQuery.of(context).size.width < 400 ||
         MediaQuery.of(context).size.height < 400)
         ? 250.0
-        : 100.0;
+        : 300.0;
 
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
+
       overlay: QrScannerOverlayShape(
           borderColor: Colors.red,
           borderRadius: 10,
@@ -225,6 +234,43 @@ class _QrViewPageState extends State<QrViewPage> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+}
+
+class AlertDialogWidget extends StatelessWidget {
+  const AlertDialogWidget({
+    Key? key,
+    required Barcode? result,
+  }) : _result = result, super(key: key);
+
+  final Barcode? _result;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListBody(
+      children:  <Widget>[
+        Text('Сканирование завершено'),
+         SizedBox(
+           height: 15,
+         ),
+         (_result!.code.contains('BEGIN:VCARD')) ?
+        Text('Данные с QR-кода получены: Контакт',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.lightBlueAccent
+        ),) : Text('Данные с QR-кода: ${_result!.code}',
+                  style: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: Colors.black
+                  ),),
+        SizedBox(
+          height: 25,
+        ),
+        Text('Подтвердите ваши действия'),
+      ],
+    );
   }
 }
 
